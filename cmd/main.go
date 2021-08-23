@@ -21,7 +21,7 @@ import (
 var (
 	buildVersion = "N/A"
 	buildTime    = "N/A"
-	k8sVersion   = "v1.15.2" // This should follow the version of k8s.io/kubernetes we are importing
+	k8sVersion   = "v1.22.0" // This should follow the version of k8s.io/kubernetes we are importing
 )
 
 func main() {
@@ -39,7 +39,8 @@ func main() {
 	opts.Version = strings.Join([]string{k8sVersion, "vk", buildVersion}, "-")
 
 	s := provider.NewStore()
-	// register provider
+	// TODO: register provider
+
 	rootCmd := root2.NewCommand(ctx, filepath.Base(os.Args[0]), s, opts)
 	rootCmd.AddCommand(version.NewCommand(buildVersion, buildTime), providers.NewCommand(s))
 	preRun := rootCmd.PreRunE
