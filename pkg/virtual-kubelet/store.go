@@ -62,6 +62,7 @@ func (s *Store) Exists(name string) bool {
 // InitConfig is the config passed to initialize a registered provider.
 type InitConfig struct {
 	ConfigPath        string
+	MemberConfigPath  string
 	NodeName          string
 	OperatingSystem   string
 	InternalIP        string

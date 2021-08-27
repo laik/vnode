@@ -8,6 +8,8 @@ import (
 	"github.com/laik/vnode/pkg/log"
 	logruslogger "github.com/laik/vnode/pkg/log/logrus"
 	provider "github.com/laik/vnode/pkg/virtual-kubelet"
+	"github.com/laik/vnode/pkg/virtual-kubelet/constraint2"
+	"github.com/laik/vnode/pkg/virtual-kubelet/vnode"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -39,7 +41,8 @@ func main() {
 	opts.Version = strings.Join([]string{k8sVersion, "vk", buildVersion}, "-")
 
 	s := provider.NewStore()
-	// TODO: register provider
+	// register provider
+	regErr := register(ctx, s)
 
 	rootCmd := root2.NewCommand(ctx, filepath.Base(os.Args[0]), s, opts)
 	rootCmd.AddCommand(version.NewCommand(buildVersion, buildTime), providers.NewCommand(s))
@@ -49,6 +52,9 @@ func main() {
 	rootCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if optsErr != nil {
 			return optsErr
+		}
+		if regErr != nil {
+			return regErr
 		}
 		if preRun != nil {
 			return preRun(cmd, args)
@@ -69,11 +75,17 @@ func main() {
 		return nil
 	}
 
+	log.G(ctx).Infof("start vnode")
 	if err := rootCmd.Execute(); err != nil && errors.Cause(err) != context.Canceled {
 		log.G(ctx).Fatal(err)
 	}
+}
 
-	log.G(ctx).Infof("start vnode %s", "test")
-
-	_, _ = ctx, s
+func register(ctx context.Context, s *provider.Store) error {
+	return s.Register(
+		constraint2.ProviderName,
+		func(cfg provider.InitConfig) (provider.Provider, error) { //nolint:errcheck
+			return vnode.NewVirtualNodeProvider(ctx, &cfg)
+		},
+	)
 }

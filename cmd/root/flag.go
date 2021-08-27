@@ -17,6 +17,7 @@ package root
 import (
 	"flag"
 	"fmt"
+	"github.com/laik/vnode/pkg/virtual-kubelet/constraint2"
 	"os"
 	"strings"
 
@@ -59,11 +60,12 @@ func (mv mapVar) Type() string {
 
 func installFlags(flags *pflag.FlagSet, c *Opts) {
 	flags.StringVar(&c.KubeConfigPath, "kubeconfig", c.KubeConfigPath, "kube config file to use for connecting to the Kubernetes API server")
+	flags.StringVar(&c.MemberConfigPath, "memberconfig", c.KubeConfigPath, "kube config file to use for connecting to the Kubernetes API server")
 	flags.StringVar(&c.KubeNamespace, "namespace", c.KubeNamespace, "kubernetes namespace (default is 'all')")
 	flags.StringVar(&c.KubeClusterDomain, "cluster-domain", c.KubeClusterDomain, "kubernetes cluster-domain (default is 'cluster.local')")
 	flags.StringVar(&c.NodeName, "nodename", c.NodeName, "kubernetes node name")
 	flags.StringVar(&c.OperatingSystem, "os", c.OperatingSystem, "Operating System (Linux/Windows)")
-	flags.StringVar(&c.Provider, "provider", c.Provider, "cloud provider")
+	flags.StringVar(&c.Provider, "provider", constraint2.ProviderName, "cloud provider")
 	flags.StringVar(&c.ProviderConfigPath, "provider-config", c.ProviderConfigPath, "cloud provider configuration file")
 	flags.StringVar(&c.MetricsAddr, "metrics-addr", c.MetricsAddr, "address to listen for metrics/stats requests")
 
@@ -77,8 +79,7 @@ func installFlags(flags *pflag.FlagSet, c *Opts) {
 	//flags.StringSliceVar(&c.TraceExporters, "trace-exporter", c.TraceExporters, fmt.Sprintf("sets the tracing exporter to use, available exporters: %s", AvailableTraceExporters()))
 	//flags.StringVar(&c.TraceConfig.ServiceName, "trace-service-name", c.TraceConfig.ServiceName, "sets the name of the service used to register with the trace exporter")
 	//flags.Var(mapVar(c.TraceConfig.Tags), "trace-tag", "add tags to include with traces in key=value form")
-	
-	flags.StringVar(&c.TraceSampleRate, "trace-sample-rate", c.TraceSampleRate, "set probability of tracing samples")
+	//flags.StringVar(&c.TraceSampleRate, "trace-sample-rate", c.TraceSampleRate, "set probability of tracing samples")
 
 	flags.DurationVar(&c.InformerResyncPeriod, "full-resync-period", c.InformerResyncPeriod, "how often to perform a full resync of pods between kubernetes and the provider")
 	flags.DurationVar(&c.StartupTimeout, "startup-timeout", c.StartupTimeout, "How long to wait for the virtual-kubelet to start")

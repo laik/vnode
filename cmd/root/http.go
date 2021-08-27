@@ -62,7 +62,9 @@ func setupHTTPServer(ctx context.Context, p provider.Provider, cfg *apiServerCon
 	var closers []io.Closer
 	cancel := func() {
 		for _, c := range closers {
-			c.Close()
+			if err := c.Close(); err != nil {
+				log.G(ctx).Errorf("close error: %s", err.Error())
+			}
 		}
 	}
 	defer func() {

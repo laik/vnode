@@ -49,6 +49,9 @@ const (
 type Opts struct {
 	// Path to the kubeconfig to use to connect to the Kubernetes API server.
 	KubeConfigPath string
+	// Path to the member kubeconfig to use to connect to the Kubernetes API server.
+	MemberConfigPath string
+
 	// Namespace to watch for pods and other resources
 	KubeNamespace string
 	// Domain suffix to append to search domains for the pods created by virtual-kubelet
@@ -117,10 +120,6 @@ func SetDefaultOpts(c *Opts) error {
 		c.PodSyncWorkers = DefaultPodSyncWorkers
 	}
 
-	//if c.TraceConfig.ServiceName == "" {
-	//	c.TraceConfig.ServiceName = DefaultNodeName
-	//}
-
 	if c.ListenPort == 0 {
 		if kp := os.Getenv("KUBELET_PORT"); kp != "" {
 			p, err := strconv.Atoi(kp)
@@ -144,6 +143,7 @@ func SetDefaultOpts(c *Opts) error {
 	if c.TaintKey == "" {
 		c.TaintKey = DefaultTaintKey
 	}
+
 	if c.TaintEffect == "" {
 		c.TaintEffect = DefaultTaintEffect
 	}
@@ -154,6 +154,16 @@ func SetDefaultOpts(c *Opts) error {
 			home, _ := homedir.Dir()
 			if home != "" {
 				c.KubeConfigPath = filepath.Join(home, ".kube", "config")
+			}
+		}
+	}
+
+	if c.MemberConfigPath == "" {
+		c.MemberConfigPath = os.Getenv("MEMBERCONFIG")
+		if c.MemberConfigPath == "" {
+			home, _ := homedir.Dir()
+			if home != "" {
+				c.MemberConfigPath = filepath.Join(home, ".kube", "config")
 			}
 		}
 	}
