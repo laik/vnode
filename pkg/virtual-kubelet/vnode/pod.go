@@ -20,7 +20,7 @@ func (n VirtualNodeProvider) UpdatePod(ctx context.Context, pod *v1.Pod) error {
 }
 
 func (n VirtualNodeProvider) DeletePod(ctx context.Context, pod *v1.Pod) error {
-	log.G(ctx).Info("DeletePod")
+	log.G(ctx).Infof("DeletePod pod namespace %s,name %s", pod.GetNamespace(), pod.GetName())
 	return nil
 }
 
@@ -38,8 +38,16 @@ func (n VirtualNodeProvider) GetPodStatus(ctx context.Context, namespace, name s
 }
 
 func (n VirtualNodeProvider) GetPods(ctx context.Context) ([]*v1.Pod, error) {
-	log.G(ctx).Info("GetPods")
-	return nil, nil
+	var pods []*v1.Pod
+	podList, err := n.clientset.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	for _, pod := range podList.Items {
+		_pod := pod
+		pods = append(pods, &_pod)
+	}
+	return pods, nil
 }
 
 func (n VirtualNodeProvider) GetContainerLogs(ctx context.Context, namespace, podName, containerName string, opts api.ContainerLogOpts) (io.ReadCloser, error) {
@@ -53,7 +61,6 @@ func (n VirtualNodeProvider) RunInContainer(ctx context.Context, namespace, podN
 }
 
 func (n VirtualNodeProvider) ConfigureNode(ctx context.Context, v *v1.Node) {
-	log.G(ctx).Infof("ConfigNode")
 	v.Status.Conditions = []v1.NodeCondition{
 		{
 			Type:               "Ready",

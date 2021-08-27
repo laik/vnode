@@ -8,7 +8,6 @@ import (
 	"github.com/laik/vnode/pkg/log"
 	logruslogger "github.com/laik/vnode/pkg/log/logrus"
 	provider "github.com/laik/vnode/pkg/virtual-kubelet"
-	"github.com/laik/vnode/pkg/virtual-kubelet/constraint2"
 	"github.com/laik/vnode/pkg/virtual-kubelet/vnode"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -83,7 +82,7 @@ func main() {
 
 func register(ctx context.Context, s *provider.Store) error {
 	return s.Register(
-		constraint2.ProviderName,
+		root2.DefaultProviderName,
 		func(cfg provider.InitConfig) (provider.Provider, error) { //nolint:errcheck
 			return vnode.NewVirtualNodeProvider(ctx, &cfg)
 		},

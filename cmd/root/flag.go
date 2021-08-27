@@ -17,7 +17,6 @@ package root
 import (
 	"flag"
 	"fmt"
-	"github.com/laik/vnode/pkg/virtual-kubelet/constraint2"
 	"os"
 	"strings"
 
@@ -58,6 +57,8 @@ func (mv mapVar) Type() string {
 	return "map"
 }
 
+var DefaultProviderName = "vnode"
+
 func installFlags(flags *pflag.FlagSet, c *Opts) {
 	flags.StringVar(&c.KubeConfigPath, "kubeconfig", c.KubeConfigPath, "kube config file to use for connecting to the Kubernetes API server")
 	flags.StringVar(&c.MemberConfigPath, "memberconfig", c.KubeConfigPath, "kube config file to use for connecting to the Kubernetes API server")
@@ -65,7 +66,7 @@ func installFlags(flags *pflag.FlagSet, c *Opts) {
 	flags.StringVar(&c.KubeClusterDomain, "cluster-domain", c.KubeClusterDomain, "kubernetes cluster-domain (default is 'cluster.local')")
 	flags.StringVar(&c.NodeName, "nodename", c.NodeName, "kubernetes node name")
 	flags.StringVar(&c.OperatingSystem, "os", c.OperatingSystem, "Operating System (Linux/Windows)")
-	flags.StringVar(&c.Provider, "provider", constraint2.ProviderName, "cloud provider")
+	flags.StringVar(&c.Provider, "provider", DefaultProviderName, "cloud provider")
 	flags.StringVar(&c.ProviderConfigPath, "provider-config", c.ProviderConfigPath, "cloud provider configuration file")
 	flags.StringVar(&c.MetricsAddr, "metrics-addr", c.MetricsAddr, "address to listen for metrics/stats requests")
 

@@ -93,8 +93,7 @@ type Opts struct {
 	StreamIdleTimeout time.Duration
 	// StreamCreationTimeout is the maximum time for streaming connection
 	StreamCreationTimeout time.Duration
-
-	Version string
+	Version               string
 }
 
 // SetDefaultOpts sets default options for unset values on the passed in option struct.

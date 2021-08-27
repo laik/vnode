@@ -3,9 +3,11 @@ package vnode
 import (
 	"context"
 	virtual_kubelet "github.com/laik/vnode/pkg/virtual-kubelet"
+	"github.com/laik/vnode/pkg/virtual-kubelet/common"
 	"github.com/virtual-kubelet/virtual-kubelet/node"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
@@ -26,14 +28,14 @@ type VirtualNodeProvider struct {
 }
 
 func NewVirtualNodeProvider(ctx context.Context, initCfg *virtual_kubelet.InitConfig) (*VirtualNodeProvider, error) {
-	configures, err := initCfg2VirtualNodeConfig(initCfg)
+	configures, err := initCfg2VirtualNodeConfig(ctx, initCfg)
 	if err != nil {
 		return nil, err
 	}
 	return NewVirtualNodeProviderConfig(configures...)
 }
 
-func initCfg2VirtualNodeConfig(initCfg *virtual_kubelet.InitConfig) ([]VirtualNodeConfigure, error) {
+func initCfg2VirtualNodeConfig(ctx context.Context, initCfg *virtual_kubelet.InitConfig) ([]VirtualNodeConfigure, error) {
 	configures := []VirtualNodeConfigure{
 		OperatingSystem(initCfg.OperatingSystem),
 		NodeName(initCfg.NodeName),
@@ -43,16 +45,24 @@ func initCfg2VirtualNodeConfig(initCfg *virtual_kubelet.InitConfig) ([]VirtualNo
 	var restConfig *rest.Config
 	var resetErr error
 
-	if initCfg.ConfigPath == "" {
+	if common.InCluster {
 		restConfig, resetErr = rest.InClusterConfig()
-		if resetErr != nil {
-			return nil, resetErr
-		}
 	} else {
-		// read by home config --kubeconfig
+		restConfig, resetErr = getRestConfig(*common.KubeConfig)
 	}
 
+	if resetErr != nil {
+		return nil, resetErr
+	}
 	configures = append(configures, ClientSet(kubernetes.NewForConfigOrDie(restConfig)))
 
 	return configures, nil
+}
+
+func getRestConfig(path string) (*rest.Config, error) {
+	restConfig, err := clientcmd.BuildConfigFromFlags("", path)
+	if err != nil {
+		return nil, err
+	}
+	return restConfig, nil
 }
